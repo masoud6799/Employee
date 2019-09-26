@@ -6,6 +6,6 @@ server.on('request', function (request, response) {
   router.lookup(request, response)
 })
 
-server.listen(81, function () {
-  console.log(`server is running on port 81`)
+server.listen(7000, function () {
+  console.log(`server is running on port 7000`)
 })
