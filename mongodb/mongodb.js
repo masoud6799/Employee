@@ -2,26 +2,71 @@ const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb://localhost:27017/";
 const databaseName = 'mydb'
 const Q = require('q')
-const deferred = Q.defer()
 
 
-MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
+MongoClient.connect(url, {
+    useNewUrlParser: true, useUnifiedTopology: true
+}, function (err, client) {
     if (err) {
-        return console.log('Unable to connect to database')
+        return console.log('Unable to connect to database!!')
     }
 
     const db = client.db(databaseName);
 
-    exports.addUser = (User) => {
-        var myobj = { _id: User.id, data: User.data, parent: User.parent };
-        return  db.collection("dataStorage").insertOne(myobj)
-        }
 
+    exports.addUser = (User) => {
+        const deferred = Q.defer()
+        var myobj = { _id: User.id, data: User.data, org: User.org };
+        db.collection("dataStorage").insertOne(myobj)
+            .then((result) => {
+                deferred.resolve(result)
+            }).catch(err => {
+                deferred.reject(err)
+            })
+        return deferred.promise
+    }
+    
+    exports.dataStorage = (User) => {
+        const deferred = Q.defer()
+        var myobj = { _id: User.id, parent: User.parent };
+        db.collection("dataStorage").insertOne(myobj)
+            .then((result) => {
+                deferred.resolve(result)
+            }).catch(err => {
+                deferred.reject(err)
+            })
+        return deferred.promise
+    }
     exports.getUsers = () => {
-        db.collection("datastorage").find({}).toArray(function (err, res) {
-            if (err) throw err;
-            console.log(res);
+        const deferred = Q.defer()
+        db.collection("dataStorage").findOne({}).then(result => {
+            deferred.resolve(result.data)
+            console.log(result.data)
+        }).catch(err => {
+            deferred.reject(err)
+        })
+        return deferred.promise
+    }
+
+    exports.updateUser = (User) => {
+        db.collection('dataStorage').updateOne(User, (error, result) => {
+            if (error) {
+                console.log(error)
+            }
+            console.log(result.ops)
+        }).then(result => {
+            console.log(result)
+        }).catch(error => {
+            console.log(error)
         })
     }
-    // dbo.close();
+    // Q.all([
+    //     addUser(User),
+    //     dataStorage(User)
+    // ]).then(function (result) {
+    //     console.log('all ok:', result)
+    // }).fail(function (error) {
+    //     console.log('all err:', error)
+    // });
+
 })

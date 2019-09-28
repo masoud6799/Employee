@@ -22,19 +22,30 @@ exports.addUser = (request, response) => {
   getRawBody(request)
     .then((bodyBuffer) => {
       const User = JSON.parse(bodyBuffer.toString())
+      const header = {
+        org: request.headers['org']
+      }
+      employeee = { ...header, ...User }
+      console.log(employeee)
       let responseBody = {}
 
-      const valid = ajv.validate(schema.addUser, User)
+      const valid = ajv.validate(schema.addUser, employeee)
       const validatonError = ajv.errors
       if (valid) {
-        mongod.addUser(User)
-        console.log(typeof mongod.addUser(User)
-        )
-          .then((result) => {
-            console.log(result)
-          }).catch((err) => {
-            console.log(err)
-          })
+        result = mongod.addUser(employeee)
+        result.then(result => {
+          responseBody = {
+            status: 'ok',
+            result: result.ops
+          }
+          ok(response, responseBody)
+        }).catch(err => {
+          responseBody = {
+            status: 'error',
+            message: err.message
+          }
+          error(response, responseBody)
+        })
       } else {
         responseBody = {
           status: 'error',
@@ -60,15 +71,15 @@ exports.getUsers = (request, response) => {
   const valid = ajv.validate(schema.getUsers, params)
   const validatonError = ajv.errors
   if (valid) {
-    mongod.getUsers()
-      .then((result) => {
+    result = mongod.getUsers()
+      .then(result => {
         responseBody = {
           status: 'ok',
-          result: result.rows
+          result: result
         }
         ok(response, responseBody)
       })
-      .catch((err) => {
+      .catch(err => {
         responseBody = {
           status: 'error',
           message: err.message
@@ -82,9 +93,7 @@ exports.getUsers = (request, response) => {
     }
     error(response, responseBody)
   }
-
 }
-
 
 exports.updateUser = (request, response) => {
   let responseBody = {}
@@ -97,10 +106,12 @@ exports.updateUser = (request, response) => {
       const validatonError = ajv.errors
       if (valid) {
         mongod.updateUser(User)
+        console.log(typeof mongod.updateUser(User)
+        )
           .then((result) => {
             responseBody = {
               status: 'ok',
-              result: result.rows[0]
+              result: result.ops[0]
             }
             ok(response, responseBody)
           })

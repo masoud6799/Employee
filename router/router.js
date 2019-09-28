@@ -14,6 +14,6 @@ const router = require('find-my-way')({
 
 router.post('/dataService', addUser)  
 router.get('/dataService', getUsers)
-// router.put('/dataService', updateUser);
+router.put('/dataService', updateUser);
 
 exports.router = router
