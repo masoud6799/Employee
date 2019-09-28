@@ -12,34 +12,27 @@ MongoClient.connect(url, {
     }
 
     const db = client.db(databaseName);
-
-
-    exports.addUser = (User) => {
+    // start addEmployee
+    exports.addEmployee = (employee) => {
         const deferred = Q.defer()
-        var myobj = { _id: User.id, data: User.data, org: User.org };
+        var myobj = { _id: employee.id, data: employee.data, org: employee.org }
+
         db.collection("dataStorage").insertOne(myobj)
             .then((result) => {
                 deferred.resolve(result)
             }).catch(err => {
                 deferred.reject(err)
             })
+
         return deferred.promise
     }
-    
-    exports.dataStorage = (User) => {
+
+    // End addEmployee
+
+    // start getEmployee
+    exports.getEmployee = (id) => {
         const deferred = Q.defer()
-        var myobj = { _id: User.id, parent: User.parent };
-        db.collection("dataStorage").insertOne(myobj)
-            .then((result) => {
-                deferred.resolve(result)
-            }).catch(err => {
-                deferred.reject(err)
-            })
-        return deferred.promise
-    }
-    exports.getUsers = () => {
-        const deferred = Q.defer()
-        db.collection("dataStorage").findOne({}).then(result => {
+        db.collection("dataStorage").findOne({ _id: id }).then(result => {
             deferred.resolve(result.data)
             console.log(result.data)
         }).catch(err => {
@@ -47,26 +40,32 @@ MongoClient.connect(url, {
         })
         return deferred.promise
     }
+    // End getEmployee
 
-    exports.updateUser = (User) => {
-        db.collection('dataStorage').updateOne(User, (error, result) => {
-            if (error) {
-                console.log(error)
+    // start updateEmployee
+    exports.updateEmployee = (employee) => {
+        const deferred = Q.defer()
+        db.collection('dataStorage').findOne({
+            _id: employee.id
+        }).then(res => {
+            if (res != null) {
+                db.collection('dataStorage').updateOne({ _id: employee.id }, {
+                    $set: { data: employee.data, parent: employee.parent, org: employee.org }
+                }).then(result => {
+                    deferred.resolve(result)
+                }).catch(error => {
+                    deferred.reject(error)
+                })
             }
-            console.log(result.ops)
-        }).then(result => {
-            console.log(result)
-        }).catch(error => {
-            console.log(error)
+            else {  // این قسمت موقتی است و باید تغییر کند
+                return console.log('id does not exist in database ')
+            }
+        }).catch(err => {
+            deferred.reject(err)
         })
+
+        return deferred.promise
     }
-    // Q.all([
-    //     addUser(User),
-    //     dataStorage(User)
-    // ]).then(function (result) {
-    //     console.log('all ok:', result)
-    // }).fail(function (error) {
-    //     console.log('all err:', error)
-    // });
+    // End updateEmployee
 
 })

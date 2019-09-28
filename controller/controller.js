@@ -1,23 +1,19 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-const url = require('url')
-const querystring = require('querystring')
 const mongod = require('../mongodb/mongodb')
 const Ajv = require('ajv')
 const getRawBody = require('raw-body')
 var Q = require('q')
-var deferred = Q.defer()
 const {
   ok, error
 } = require('../util/response')
-
 
 const schema = require('../schema/schema')
 
 const ajv = new Ajv({
   allErrors: true
 })
-exports.addUser = (request, response) => {
+exports.addEmployee = (request, response) => {
   let responseBody = {}
   getRawBody(request)
     .then((bodyBuffer) => {
@@ -29,10 +25,10 @@ exports.addUser = (request, response) => {
       console.log(employeee)
       let responseBody = {}
 
-      const valid = ajv.validate(schema.addUser, employeee)
+      const valid = ajv.validate(schema.addEmployee, employeee)
       const validatonError = ajv.errors
       if (valid) {
-        result = mongod.addUser(employeee)
+        result = mongod.addEmployee(employeee)
         result.then(result => {
           responseBody = {
             status: 'ok',
@@ -64,14 +60,12 @@ exports.addUser = (request, response) => {
 
 }
 
-exports.getUsers = (request, response) => {
-  const requestUrl = url.parse(request.url)
-  const params = querystring.decode(requestUrl.query)
+exports.getEmployee = (request, response, params) => {
   let responseBody = {}
-  const valid = ajv.validate(schema.getUsers, params)
+  const valid = ajv.validate(schema.getEmployee, params)
   const validatonError = ajv.errors
   if (valid) {
-    result = mongod.getUsers()
+    result = mongod.getEmployee(parseInt(params.id))
       .then(result => {
         responseBody = {
           status: 'ok',
@@ -95,23 +89,22 @@ exports.getUsers = (request, response) => {
   }
 }
 
-exports.updateUser = (request, response) => {
+exports.updateEmployee = (request, response) => {
   let responseBody = {}
   getRawBody(request)
     .then((bodyBuffer) => {
-      const User = JSON.parse(bodyBuffer.toString())
+      const employeee = JSON.parse(bodyBuffer.toString())
       let responseBody = {}
 
-      const valid = ajv.validate(schema.updateuser, User)
+      const valid = ajv.validate(schema.updateEmployee, employeee)
       const validatonError = ajv.errors
       if (valid) {
-        mongod.updateUser(User)
-        console.log(typeof mongod.updateUser(User)
-        )
-          .then((result) => {
+        mongod.updateEmployee(employeee)
+          .then(result => {
             responseBody = {
               status: 'ok',
-              result: result.ops[0]
+              message: 'The data was updated',
+              // result: result
             }
             ok(response, responseBody)
           })
