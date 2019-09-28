@@ -1,19 +1,19 @@
 
-const {addUser, getUsers,updateUser} = require('../controller/controller')
+const {addEmployee, getEmployee,updateEmployee} = require('../controller/controller')
 const { error } = require('../util/response')
 
 const router = require('find-my-way')({
   defaultRoute: (request, response) => {
     const responseBody = {
       status: 'error',
-      message: ''
+      message: 'cant find route'
     }
     error(response, responseBody)
   }
 })
 
-router.post('/dataService', addUser)  
-router.get('/dataService', getUsers)
-router.put('/dataService', updateUser);
+router.post('/dataService', addEmployee)  
+router.get('/dataService/:id', getEmployee)
+router.put('/dataService', updateEmployee);
 
 exports.router = router

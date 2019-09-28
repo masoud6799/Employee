@@ -1,4 +1,4 @@
-exports.addUser = {
+exports.addEmployee = {
   required: [
     'id',
     'data',
@@ -17,12 +17,19 @@ exports.addUser = {
   }
 }
 
-exports.getUsers = {
+exports.getEmployee = {
   type: 'object',
   additionalProperties: false,
   properties: {
     id: {
-      type: 'integer'
+      anyOf: [{
+        type: 'integer'
+      },
+      {
+        type: 'string',
+        pattern: '^[0-9]+$'
+      }
+      ]
     },
     parent: {
       type: 'integer'
@@ -33,7 +40,7 @@ exports.getUsers = {
   }
 }
 
-exports.updateuser = {
+exports.updateEmployee = {
   type: 'object',
   additionalProperties: true,
   required: [
