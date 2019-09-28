@@ -1,24 +1,27 @@
-var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/";
+const MongoClient = require('mongodb').MongoClient;
+const url = "mongodb://localhost:27017/";
+const databaseName = 'mydb'
+const Q = require('q')
+const deferred = Q.defer()
 
-MongoClient.connect(url, function (err, db) {
-    if (err) throw err;
-    var dbo = db.db("mydb");
-    
 
-    exports.addUser = (id, data, parent) => {
-        var myobj = { _id: id, data: data, parent: parent };
-        dbo.collection("dataStorage").insertOne(myobj, function (err, res) {
-            if (err) throw err;
-            console.log("1 document inserted");
-        });
+MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
+    if (err) {
+        return console.log('Unable to connect to database')
     }
 
+    const db = client.db(databaseName);
+
+    exports.addUser = (User) => {
+        var myobj = { _id: User.id, data: User.data, parent: User.parent };
+        return  db.collection("dataStorage").insertOne(myobj)
+        }
+
     exports.getUsers = () => {
-        dbo.collection("datastorage").find({}).toArray(function(err, res) {
+        db.collection("datastorage").find({}).toArray(function (err, res) {
             if (err) throw err;
             console.log(res);
         })
     }
-
-});
+    // dbo.close();
+})
