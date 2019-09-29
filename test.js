@@ -112,3 +112,171 @@ Q.all([
 //         console.log('all settled:', result)
 //     });
 
+exports.addEmployee = (body, response) => {
+    var deferred = q.defer()
+    MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, db) {
+        if (err) error(response, { message: ' Error message related to database' }, 503);
+        else {
+
+            var dbo = db.db("mydb");
+
+            const dataStorage = {
+                _id: body._id,
+                data: body.data,
+                org: body.org
+
+            }
+            const dataMap = {
+                _id: body._id,
+                parent: body.parent
+
+            }
+            q.all([
+                dataStorageInsert(dataStorage,dbo),
+                dataMapInsert(dataMap,dbo)
+            ])
+            .then(function (res) {
+                console.log(res)
+                console.log('all ok:', res)
+                deferred.resolve(res);
+            })
+            .fail(function (err) {
+                console.log(err)
+                console.log('all err:', err)
+                deferred.reject(err);
+            });
+                
+    
+        }
+    });
+    return deferred.promise;
+
+}
+
+
+function dataStorageInsert(dataStorage,dbo) {
+    const deferred = q.defer()
+    dbo.collection("dataStorage").insertOne(dataStorage, function (err, res) {
+        if (err) {
+            deferred.reject(err);
+        }
+        else {
+            console.log('ok data storage');
+            deferred.resolve(res);
+        }
+    });
+    return deferred.promise;
+}
+
+function dataMapInsert(dataMap,dbo) {
+    const deferred = q.defer()
+    dbo.collection("dataMap").insertOne(dataMap, function (err, res) {
+        if (err){
+            deferred.reject('err');
+        } 
+        else {
+            console.log('ok datamap')
+            deferred.resolve('res');
+        }
+    });
+
+
+
+    exports.addEmployee = (body, response) => {
+        var deferred = q.defer()
+        MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, db) {
+            if (err) error(response, { message: ' Error message related to database' }, 503);
+            else {
+    
+                var dbo = db.db("mydb");
+    
+                const dataStorage = {
+                    _id: body._id,
+                    data: body.data,
+                    org: body.org
+    
+                }
+                const dataMap = {
+                    _id: body._id,
+                    parent: body.parent
+    
+                }
+                q.allSettled([
+                    dataStorageInsert(dataStorage, dbo),
+                    dataMapInsert(dataMap, dbo)
+                ])
+                    .then(function (results) {
+                        var countResolve = 0;
+                        var countReject = 0;
+                        results.forEach(function (result) {
+                            if (result.state === "fulfilled") {
+                                var value = result.value;
+                                console.log(value.ops);
+                                countResolve++;
+    
+                            } else {
+                                var reason = result.reason;
+                                console.log(reason);
+                                countReject++;
+                                // deferred.reject(err);
+    
+                            }
+                        })
+                        if (countResolve === 2) deferred.resolve(results);
+                        else if (countReject === 2) deferred.reject('duplicate');
+                        else {
+                            console.log('noooooooooooooooooooooooooooooooooooooo')
+                            var queryDataMap = { _id: dataMap._id };
+                            var queryDataStorage = { _id: dataStorage._id };
+                            rollBackInsert(queryDataMap, queryDataStorage, dbo)
+    
+                            deferred.reject('data base problem');
+                        }
+    
+                    })
+                // .fail(function (err) {
+                //     // var queryDataMap = { _id: dataMap._id };
+                //     // var queryDataStorage = { _id: dataStorage._id };
+                //     console.log('all err:', err)
+                //     rollBackInsert(queryDataMap, queryDataStorage, dbo)
+                //     // deferred.reject(err);
+    
+    
+                // });
+    
+            }
+        });
+        return deferred.promise;
+    
+    }
+}
+
+function rollBackInsert(queryDataMap, queryDataStorage, dbo) {
+    // const deferred = q.defer()
+    dbo.collection("dataMap").deleteOne(queryDataMap, function (err, obj) {
+
+        if (err) {
+            console.log(err)
+            // deferred.reject(err);
+        }
+        else {
+            // console.log(res)
+            console.log('delete success datamap')
+            // deferred.resolve(res);
+            // ok(response, { message: 'Data saved ' }, 201)
+        }
+    });
+    dbo.collection("dataStorage").deleteOne(queryDataStorage, function (err, obj) {
+        if (err) {
+            // console.log(err)
+            // deferred.reject(err);
+        }
+        else {
+            // console.log(res)
+            console.log('delete success dataStorage')
+            // deferred.resolve(res);
+            // ok(response, { message: 'Data saved ' }, 201)
+        }
+    });
+    // return deferred.promise;
+}

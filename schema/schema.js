@@ -1,9 +1,12 @@
 exports.addEmployee = {
+  type: 'object',
   required: [
     'id',
     'data',
-    'parent'
+    'parent',
+    'org'
   ],
+  additionalProperties: false,
   properties: {
     id: {
       type: 'integer'
@@ -12,6 +15,9 @@ exports.addEmployee = {
       type: 'integer'
     },
     data: {
+      type: 'object'
+    },
+    org: {
       type: 'string'
     }
   }
@@ -35,6 +41,9 @@ exports.getEmployee = {
       type: 'integer'
     },
     data: {
+      type: 'object'
+    },
+    org: {
       type: 'string'
     }
   }
@@ -46,7 +55,8 @@ exports.updateEmployee = {
   required: [
     'id',
     'data',
-    'parent'
+    'parent',
+    'org'
   ],
   properties: {
     id: {
@@ -56,6 +66,9 @@ exports.updateEmployee = {
       type: 'integer'
     },
     data: {
+      type: 'object'
+    },
+    org: {
       type: 'string'
     }
   }

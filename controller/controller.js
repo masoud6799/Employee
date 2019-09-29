@@ -57,7 +57,6 @@ exports.addEmployee = (request, response) => {
       }
       error(response, responseBody)
     })
-
 }
 
 exports.getEmployee = (request, response, params) => {
@@ -93,9 +92,13 @@ exports.updateEmployee = (request, response) => {
   let responseBody = {}
   getRawBody(request)
     .then((bodyBuffer) => {
-      const employeee = JSON.parse(bodyBuffer.toString())
+      const User = JSON.parse(bodyBuffer.toString())
+      const header = {
+        org: request.headers['org']
+      }
+      employeee = { ...header, ...User }
       let responseBody = {}
-
+      console.log(employeee)
       const valid = ajv.validate(schema.updateEmployee, employeee)
       const validatonError = ajv.errors
       if (valid) {
@@ -104,7 +107,6 @@ exports.updateEmployee = (request, response) => {
             responseBody = {
               status: 'ok',
               message: 'The data was updated',
-              // result: result
             }
             ok(response, responseBody)
           })
