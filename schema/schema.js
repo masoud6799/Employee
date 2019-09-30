@@ -18,7 +18,8 @@ exports.addEmployee = {
       type: 'object'
     },
     org: {
-      type: 'string'
+      type: 'string',
+      pattern: '^[0-9]+$'
     }
   }
 }

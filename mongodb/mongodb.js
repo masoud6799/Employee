@@ -3,49 +3,50 @@ const url = "mongodb://localhost:27017/";
 const databaseName = 'mydb'
 const Q = require('q')
 
-MongoClient.connect(url, {
-    useNewUrlParser: true, useUnifiedTopology: true
-}, function (err, client) {
-    if (err) {
-        return console.log('Unable to connect to database!!')
-    }
-    console.log('connecting to the database')
 
-    const db = client.db(databaseName);
+insertDataStorage = (myobj, db) => {
+    const deferred = Q.defer()
+    db.collection("dataStorage").insertOne(myobj)
+        .then((result) => {
+            deferred.resolve(result)
+        }).catch(err => {
+            deferred.reject(err)
+        })
+    return deferred.promise;
+}
 
-    insertDataStorage = (myobj) => {
-        const deferred = Q.defer()
-        db.collection("dataStorage").insertOne(myobj)
-            .then((result) => {
-                deferred.resolve(result)
-            }).catch(err => {
-                deferred.reject(err)
-            })
-        return deferred.promise;
-    }
+insertDataMap = (obj, db) => {
+    const deferred = Q.defer()
+    db.collection("dataMap").insertOne(obj)
+        .then((result) => {
+            deferred.resolve(result)
+        }).catch(err => {
+            deferred.reject(err)
+        })
+    return deferred.promise;
+}
 
-    insertDataMap = (obj) => {
-        const deferred = Q.defer()
-        db.collection("dataMap").insertOne(obj)
-            .then((result) => {
-                deferred.resolve(result)
-            }).catch(err => {
-                deferred.reject(err)
-            })
-        return deferred.promise;
-    }
 
-    // start addEmployee
-    exports.addEmployee = (employee) => {
-        const deferred = Q.defer()
+
+// start addEmployee
+exports.addEmployee = (employee) => {
+    const deferred = Q.defer()
+
+    MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
+        if (err) {
+            return console.log('Unable to connect to database!!')
+        }
+        console.log('connecting to the database')
+
+        const db = client.db(databaseName);
         let myobj = { _id: employee.id, data: employee.data, org: employee.org }
         let obj = { _id: employee.id, parent: employee.parent }
         var countResolve = 0;
         var countReject = 0;
         Q.allSettled(
             [
-                insertDataStorage(myobj),
-                insertDataMap(obj)
+                insertDataStorage(myobj, db),
+                insertDataMap(obj, db)
             ]
         )
             .then(function (results) {
@@ -67,26 +68,40 @@ MongoClient.connect(url, {
                     throw new Error('there is a problem in database!!!')
                 }
             })
-        return deferred.promise
-    }
-    // End addEmployee
+    })
+    return deferred.promise
+}
+// End addEmployee
 
-    // start getEmployee
-    exports.getEmployee = (id) => {
-        const deferred = Q.defer()
+// start getEmployee
+exports.getEmployee = (id) => {
+    const deferred = Q.defer()
+    MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
+        if (err) {
+            return console.log('Unable to connect to database!!')
+        }
+        const db = client.db(databaseName);
+        console.log('connecting to the database')
         db.collection("dataStorage").findOne({ _id: id }).then(result => {
             deferred.resolve(result.data)
             console.log(result.data)
         }).catch(err => {
             deferred.reject(err)
         })
-        return deferred.promise
-    }
-    // End getEmployee
-    
-    // start updateEmployee
-    exports.updateEmployee = (employee) => {
-        const deferred = Q.defer()
+    })
+    return deferred.promise
+}
+// End getEmployee
+
+// start updateEmployee
+exports.updateEmployee = (employee) => {
+    const deferred = Q.defer()
+    MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
+        if (err) {
+            return console.log('Unable to connect to database!!')
+        }
+        const db = client.db(databaseName);
+        console.log('connecting to the database')
         db.collection('dataStorage').findOne({
             _id: employee.id
         }).then(res => {
@@ -122,25 +137,25 @@ MongoClient.connect(url, {
         }).catch(err => {
             deferred.reject(err)
         })
+    })
+    return deferred.promise
+}
+// End updateEmployee
 
-        return deferred.promise
-    }
-    // End updateEmployee
+rollback = (id) => {
+    Q.all([
+        db.collection('dataStorage').deleteOne(id)
+            .then(result => {
+                console.log(result)
+            }).catch(err => {
+                console.log(err)
+            }),
+        db.collection('dataMap').deleteOne(id)
+            .then(result => {
+                console.log(result)
+            }).catch(err => {
+                console.log(err)
+            })
+    ])
+}
 
-    rollback = (id) => {
-        Q.all([
-            db.collection('dataStorage').deleteOne(id)
-                .then(result => {
-                    console.log(result)
-                }).catch(err => {
-                    console.log(err)
-                }),
-            db.collection('dataMap').deleteOne(id)
-                .then(result => {
-                    console.log(result)
-                }).catch(err => {
-                    console.log(err)
-                })
-        ])
-    }
-})

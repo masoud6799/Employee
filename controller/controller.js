@@ -22,7 +22,7 @@ exports.addEmployee = (request, response) => {
         org: request.headers['org']
       }
       employeee = { ...header, ...User }
-      console.log(employeee)
+      // console.log(employeee)
       let responseBody = {}
 
       const valid = ajv.validate(schema.addEmployee, employeee)
@@ -34,7 +34,7 @@ exports.addEmployee = (request, response) => {
             status: 'ok',
             result: result[0].value.ops[0]
           }
-          console.log(result)
+          // console.log(result)
           ok(response, responseBody)
         }).catch(err => {
           responseBody = {
