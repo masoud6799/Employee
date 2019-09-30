@@ -6,13 +6,13 @@
 // }
 // console.log('sss', x1());
 
-function x2(myCallback){
-    setTimeout(function(){
+function x2(myCallback) {
+    setTimeout(function () {
         myCallback(1)
     }, 100);
 }
 
-x2(function(result){
+x2(function (result) {
     console.log(result)
 })
 
@@ -92,10 +92,10 @@ function x5(num, delay) {
 //     })
 
 Q.all([
-        x5(15, 10),
-        x5(25, 5),
-        x5(5, 150)
-    ])
+    x5(15, 10),
+    x5(25, 5),
+    x5(5, 150)
+])
     .then(function (result) {
         console.log('all ok:', result)
     })
@@ -132,21 +132,21 @@ exports.addEmployee = (body, response) => {
 
             }
             q.all([
-                dataStorageInsert(dataStorage,dbo),
-                dataMapInsert(dataMap,dbo)
+                dataStorageInsert(dataStorage, dbo),
+                dataMapInsert(dataMap, dbo)
             ])
-            .then(function (res) {
-                console.log(res)
-                console.log('all ok:', res)
-                deferred.resolve(res);
-            })
-            .fail(function (err) {
-                console.log(err)
-                console.log('all err:', err)
-                deferred.reject(err);
-            });
-                
-    
+                .then(function (res) {
+                    console.log(res)
+                    console.log('all ok:', res)
+                    deferred.resolve(res);
+                })
+                .fail(function (err) {
+                    console.log(err)
+                    console.log('all err:', err)
+                    deferred.reject(err);
+                });
+
+
         }
     });
     return deferred.promise;
@@ -154,7 +154,7 @@ exports.addEmployee = (body, response) => {
 }
 
 
-function dataStorageInsert(dataStorage,dbo) {
+function dataStorageInsert(dataStorage, dbo) {
     const deferred = q.defer()
     dbo.collection("dataStorage").insertOne(dataStorage, function (err, res) {
         if (err) {
@@ -168,12 +168,12 @@ function dataStorageInsert(dataStorage,dbo) {
     return deferred.promise;
 }
 
-function dataMapInsert(dataMap,dbo) {
+function dataMapInsert(dataMap, dbo) {
     const deferred = q.defer()
     dbo.collection("dataMap").insertOne(dataMap, function (err, res) {
-        if (err){
+        if (err) {
             deferred.reject('err');
-        } 
+        }
         else {
             console.log('ok datamap')
             deferred.resolve('res');
@@ -187,19 +187,19 @@ function dataMapInsert(dataMap,dbo) {
         MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, db) {
             if (err) error(response, { message: ' Error message related to database' }, 503);
             else {
-    
+
                 var dbo = db.db("mydb");
-    
+
                 const dataStorage = {
                     _id: body._id,
                     data: body.data,
                     org: body.org
-    
+
                 }
                 const dataMap = {
                     _id: body._id,
                     parent: body.parent
-    
+
                 }
                 q.allSettled([
                     dataStorageInsert(dataStorage, dbo),
@@ -213,13 +213,12 @@ function dataMapInsert(dataMap,dbo) {
                                 var value = result.value;
                                 console.log(value.ops);
                                 countResolve++;
-    
                             } else {
                                 var reason = result.reason;
                                 console.log(reason);
                                 countReject++;
                                 // deferred.reject(err);
-    
+
                             }
                         })
                         if (countResolve === 2) deferred.resolve(results);
@@ -229,10 +228,10 @@ function dataMapInsert(dataMap,dbo) {
                             var queryDataMap = { _id: dataMap._id };
                             var queryDataStorage = { _id: dataStorage._id };
                             rollBackInsert(queryDataMap, queryDataStorage, dbo)
-    
+
                             deferred.reject('data base problem');
                         }
-    
+
                     })
                 // .fail(function (err) {
                 //     // var queryDataMap = { _id: dataMap._id };
@@ -240,14 +239,14 @@ function dataMapInsert(dataMap,dbo) {
                 //     console.log('all err:', err)
                 //     rollBackInsert(queryDataMap, queryDataStorage, dbo)
                 //     // deferred.reject(err);
-    
-    
+
+
                 // });
-    
+
             }
         });
         return deferred.promise;
-    
+
     }
 }
 

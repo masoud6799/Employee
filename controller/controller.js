@@ -32,8 +32,9 @@ exports.addEmployee = (request, response) => {
         result.then(result => {
           responseBody = {
             status: 'ok',
-            result: result.ops
+            result: result[0].value.ops[0]
           }
+          console.log(result)
           ok(response, responseBody)
         }).catch(err => {
           responseBody = {
@@ -106,7 +107,8 @@ exports.updateEmployee = (request, response) => {
           .then(result => {
             responseBody = {
               status: 'ok',
-              message: 'The data was updated',
+              message: 'the date was updated',
+              // result: result
             }
             ok(response, responseBody)
           })

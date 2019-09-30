@@ -11,53 +11,62 @@ MongoClient.connect(url, {
     }
     console.log('connecting to the database')
 
-
     const db = client.db(databaseName);
+
+    insertDataStorage = (myobj) => {
+        const deferred = Q.defer()
+        db.collection("dataStorage").insertOne(myobj)
+            .then((result) => {
+                deferred.resolve(result)
+            }).catch(err => {
+                deferred.reject(err)
+            })
+        return deferred.promise;
+    }
+
+    insertDataMap = (obj) => {
+        const deferred = Q.defer()
+        db.collection("dataMap").insertOne(obj)
+            .then((result) => {
+                deferred.resolve(result)
+            }).catch(err => {
+                deferred.reject(err)
+            })
+        return deferred.promise;
+    }
+
     // start addEmployee
     exports.addEmployee = (employee) => {
         const deferred = Q.defer()
         let myobj = { _id: employee.id, data: employee.data, org: employee.org }
         let obj = { _id: employee.id, parent: employee.parent }
-        let countResolve = 0;
-        let countReject = 0;
+        var countResolve = 0;
+        var countReject = 0;
         Q.allSettled(
             [
-                db.collection("dataStorage").insertOne(myobj)
-                    .then((result) => {
-                        deferred.resolve(result)
-                    }).catch(err => {
-                        deferred.reject(err)
-                    }),
-                db.collection("dataMap").insertOne(obj)
-                    .then((result) => {
-                        deferred.resolve(result)
-                    }).catch(err => {
-                        deferred.reject(err)
-                    })]
-        ).then(result => {
-            result.forEach(element => {
-                if (element.state === 'fulfilled') {
-                    let value = result;
-                    console.log(value);
-                    countResolve++;
-                }
+                insertDataStorage(myobj),
+                insertDataMap(obj)
+            ]
+        )
+            .then(function (results) {
+                results.forEach(function (result) {
+                    if (result.state === "fulfilled") {
+                        var value = result.value;
+                        countResolve++;
+                    } else {
+                        var reason = result.reason;
+                        countReject++;
+                    }
+                })
+                if (countResolve === 2)
+                    deferred.resolve(results);
+                else if (countReject === 2)
+                    deferred.reject(new Error('id already exist in database'))
                 else {
-                    let reason = result.reason;
-                    console.log(reason);
-                    countReject++;
+                    rollback(employee.id)
+                    throw new Error('there is a problem in database!!!')
                 }
             })
-            if (countResolve === 2) deferred.resolve(result)
-            else if (countReject === 2) deferred.reject('duplicate');
-            else {
-                rollback(employee.id)
-                deferred.reject('data base problem');
-            }
-            // return result
-        }).fail(function (error) {
-            console.log('all err:', error)
-            return error
-        });
         return deferred.promise
     }
     // End addEmployee
@@ -74,7 +83,7 @@ MongoClient.connect(url, {
         return deferred.promise
     }
     // End getEmployee
-
+    
     // start updateEmployee
     exports.updateEmployee = (employee) => {
         const deferred = Q.defer()
