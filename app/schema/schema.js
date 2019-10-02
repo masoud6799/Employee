@@ -1,3 +1,5 @@
+
+/* #region addEmployee */
 exports.addEmployee = {
   type: 'object',
   required: [
@@ -9,7 +11,7 @@ exports.addEmployee = {
   additionalProperties: false,
   properties: {
     id: {
-      type: 'integer'
+      type: 'string'
     },
     parent: {
       type: 'integer'
@@ -18,12 +20,13 @@ exports.addEmployee = {
       type: 'object'
     },
     org: {
-      type: 'string',
-      pattern: '^[0-9]+$'
+      type: 'string'
     }
   }
 }
+/* #endregion */
 
+/* #region getEmployee */
 exports.getEmployee = {
   type: 'object',
   additionalProperties: false,
@@ -49,7 +52,9 @@ exports.getEmployee = {
     }
   }
 }
+/* #endregion */
 
+/* #region updateEmployee */
 exports.updateEmployee = {
   type: 'object',
   additionalProperties: true,
@@ -74,3 +79,4 @@ exports.updateEmployee = {
     }
   }
 }
+/* #endregion */
