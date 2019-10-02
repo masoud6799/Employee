@@ -1,18 +1,14 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-undef */
+/* #region variable */
 const mongod = require('../mongodb/mongodb')
 const Ajv = require('ajv')
 const getRawBody = require('raw-body')
-var Q = require('q')
-const {
-  ok, error
-} = require('../util/response')
-
+const { ok, error } = require('../util/response')
 const schema = require('../schema/schema')
+const ajv = new Ajv({ allErrors: true })
+/* #endregion */
 
-const ajv = new Ajv({
-  allErrors: true
-})
+
+/* #region addEmployee */
 exports.addEmployee = (request, response) => {
   let responseBody = {}
   getRawBody(request)
@@ -59,7 +55,9 @@ exports.addEmployee = (request, response) => {
       error(response, responseBody)
     })
 }
+/* #endregion */
 
+/* #region getEmployee */
 exports.getEmployee = (request, response, params) => {
   let responseBody = {}
   const valid = ajv.validate(schema.getEmployee, params)
@@ -88,7 +86,9 @@ exports.getEmployee = (request, response, params) => {
     error(response, responseBody)
   }
 }
+/* #endregion */
 
+/* #region updateEmployee */
 exports.updateEmployee = (request, response) => {
   let responseBody = {}
   getRawBody(request)
@@ -99,7 +99,7 @@ exports.updateEmployee = (request, response) => {
       }
       employeee = { ...header, ...User }
       let responseBody = {}
-      console.log(employeee)
+      // console.log(employeee)
       const valid = ajv.validate(schema.updateEmployee, employeee)
       const validatonError = ajv.errors
       if (valid) {
@@ -135,3 +135,4 @@ exports.updateEmployee = (request, response) => {
       error(response, responseBody)
     })
 }
+/* #endregion */

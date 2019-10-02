@@ -1,9 +1,12 @@
+
+/* #region variable */
 const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb://localhost:27017/";
 const databaseName = 'mydb'
 const Q = require('q')
+/* #endregion */
 
-
+/* #region insertDataStorage */
 insertDataStorage = (myobj, db) => {
     const deferred = Q.defer()
     db.collection("dataStorage").insertOne(myobj)
@@ -14,7 +17,9 @@ insertDataStorage = (myobj, db) => {
         })
     return deferred.promise;
 }
+/* #endregion */
 
+/* #region insertDataMap */
 insertDataMap = (obj, db) => {
     const deferred = Q.defer()
     db.collection("dataMap").insertOne(obj)
@@ -25,10 +30,9 @@ insertDataMap = (obj, db) => {
         })
     return deferred.promise;
 }
+/* #endregion */
 
-
-
-// start addEmployee
+/* #region addEmployee */
 exports.addEmployee = (employee) => {
     const deferred = Q.defer()
 
@@ -71,9 +75,9 @@ exports.addEmployee = (employee) => {
     })
     return deferred.promise
 }
-// End addEmployee
+/* #endregion */
 
-// start getEmployee
+/* #region getEmployee */
 exports.getEmployee = (id) => {
     const deferred = Q.defer()
     MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
@@ -84,16 +88,16 @@ exports.getEmployee = (id) => {
         console.log('connecting to the database')
         db.collection("dataStorage").findOne({ _id: id }).then(result => {
             deferred.resolve(result.data)
-            console.log(result.data)
+            // console.log(result.data)
         }).catch(err => {
             deferred.reject(err)
         })
     })
     return deferred.promise
 }
-// End getEmployee
+/* #endregion */
 
-// start updateEmployee
+/* #region updateEmployee */
 exports.updateEmployee = (employee) => {
     const deferred = Q.defer()
     MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
@@ -140,8 +144,9 @@ exports.updateEmployee = (employee) => {
     })
     return deferred.promise
 }
-// End updateEmployee
+/* #endregion */
 
+/* #region rollback */
 rollback = (id) => {
     Q.all([
         db.collection('dataStorage').deleteOne(id)
@@ -158,4 +163,4 @@ rollback = (id) => {
             })
     ])
 }
-
+  /* #endregion */

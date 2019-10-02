@@ -1,4 +1,4 @@
-const server = require('./server').server
+const server = require('./app/server').server
 const PORT = 81
 
 server.listen(PORT, function () {
