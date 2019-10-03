@@ -32,14 +32,7 @@ exports.getEmployee = {
   additionalProperties: false,
   properties: {
     id: {
-      anyOf: [{
-        type: 'integer'
-      },
-      {
-        type: 'string',
-        pattern: '^[0-9]+$'
-      }
-      ]
+      type: 'string',
     },
     parent: {
       type: 'integer'
@@ -66,7 +59,7 @@ exports.updateEmployee = {
   ],
   properties: {
     id: {
-      type: 'integer'
+      type: 'string'
     },
     parent: {
       type: 'integer'

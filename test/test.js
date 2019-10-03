@@ -1,11 +1,11 @@
 /* #region variable */
 const chai = require('chai')
-chai.use(chaiHttp)
 const chaiHttp = require('chai-http')
+chai.use(chaiHttp)
 const expect = chai.expect
 const {
   server
-} = require('../server')
+} = require('../app/server')
 
 let employee
 /* #endregion */
@@ -16,7 +16,7 @@ describe('Library Integration Test', () => {
   describe('addEmployee Test', () => {
     it('It should added successfully', (done) => {
       const testEmployee = {
-        id: 2,
+        id: 12,
         data: {
           name: 'milad',
           lastname: 'mokhtari'

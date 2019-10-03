@@ -63,7 +63,7 @@ exports.getEmployee = (request, response, params) => {
   const valid = ajv.validate(schema.getEmployee, params)
   const validatonError = ajv.errors
   if (valid) {
-    result = mongod.getEmployee(parseInt(params.id))
+    result = mongod.getEmployee(params.id)
       .then(result => {
         responseBody = {
           status: 'ok',
@@ -74,7 +74,7 @@ exports.getEmployee = (request, response, params) => {
       .catch(err => {
         responseBody = {
           status: 'error',
-          message: err.message
+          message: 'id does not exist in database'
         }
         error(response, responseBody)
       })
