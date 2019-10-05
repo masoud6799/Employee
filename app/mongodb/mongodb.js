@@ -1,4 +1,3 @@
-
 /* #region variable */
 const MongoClient = require('mongodb').MongoClient;
 const url = "mongodb://localhost:27017/";
@@ -7,18 +6,23 @@ const Q = require('q')
 /* #endregion */
 
 /* #region MongoClient connect */
-var db
-MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
-    if (err) {
-        return console.log('Unable to connect to database!!')
-    }
-    console.log('connecting to the database')
-    db = client.db(databaseName)
-})
+mongoClient = () => {
+    MongoClient.connect(url, { useUnifiedTopology: true, useNewUrlParser: true }, function (err, client) {
+        if (err) {
+            return console.log('Unable to connect to database!!')
+        }
+        console.log('connecting to the database')
+        db = client.db(databaseName)
+    })
+}
+
+var db = mongoClient()
+
 /* #endregion */
 
 /* #region insertDataStorage */
 insertDataStorage = (myobj) => {
+    
     const deferred = Q.defer()
     db.collection("dataStorage").insertOne(myobj)
         .then((result) => {
