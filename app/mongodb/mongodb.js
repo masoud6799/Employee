@@ -22,7 +22,7 @@ var db = mongoClient()
 
 /* #region insertDataStorage */
 insertDataStorage = (myobj) => {
-    
+
     const deferred = Q.defer()
     db.collection("dataStorage").insertOne(myobj)
         .then((result) => {
@@ -95,7 +95,6 @@ exports.getEmployee = (id) => {
     }).catch(err => {
         deferred.reject(err)
     })
-
     return deferred.promise
 }
 /* #endregion */
@@ -150,7 +149,7 @@ updateDataStorage = (employee) => {
 }
 /* #endregion */
 
-/* #region updateDataStorage */
+/* #region updateDataMap */
 updateDataMap = (employee) => {
     const deferred = Q.defer()
 
@@ -163,6 +162,19 @@ updateDataMap = (employee) => {
                 deferred.resolve(result)
             }
         })
+    return deferred.promise
+}
+/* #endregion */
+
+/* #region getAllEmployee */
+exports.getAllEmployee = (obj) => {
+    const deferred = Q.defer()
+
+    db.collection("dataStorage").find({ org: obj.org }).toArray(function (err, data) {
+        if (err)
+            deferred.reject(err)
+        deferred.resolve(data)
+    });
     return deferred.promise
 }
 /* #endregion */
@@ -182,6 +194,11 @@ rollback = (id) => {
             }).catch(err => {
                 console.log(err)
             })
-    ])
+    ]).then(result => {
+
+    })
+        .catch(error => {
+
+        })
 }
 /* #endregion */

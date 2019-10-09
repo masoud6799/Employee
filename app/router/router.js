@@ -1,5 +1,5 @@
 
-const {addEmployee, getEmployee,updateEmployee} = require('../controller/controller')
+const {addEmployee, getEmployee, updateEmployee, getAllEmployee} = require('../controller/controller')
 const { error } = require('../util/response')
 
 const router = require('find-my-way')({
@@ -14,6 +14,7 @@ const router = require('find-my-way')({
 
 router.post('/dataService', addEmployee)  
 router.get('/dataService/:id', getEmployee)
-router.put('/dataService', updateEmployee);
+router.put('/dataService', updateEmployee)
+router.get('/dataService', getAllEmployee)
 
 exports.router = router

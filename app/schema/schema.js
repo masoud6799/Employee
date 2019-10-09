@@ -73,3 +73,20 @@ exports.updateEmployee = {
   }
 }
 /* #endregion */
+
+exports.getAllEmployee = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    id: {
+      anyOf: [{
+        type: 'integer'
+      },
+      {
+        type: 'string',
+        pattern: '^[0-9]+$'
+      }
+      ]
+    }
+  }
+}

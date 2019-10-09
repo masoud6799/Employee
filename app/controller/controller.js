@@ -1,12 +1,13 @@
 /* #region variable */
 const mongod = require('../mongodb/mongodb')
 const Ajv = require('ajv')
+const url = require('url')
+const querystring = require('querystring')
 const getRawBody = require('raw-body')
 const { ok, error } = require('../util/response')
 const schema = require('../schema/schema')
 const ajv = new Ajv({ allErrors: true })
 /* #endregion */
-
 
 /* #region addEmployee */
 exports.addEmployee = (request, response) => {
@@ -134,5 +135,43 @@ exports.updateEmployee = (request, response) => {
       }
       error(response, responseBody)
     })
+}
+/* #endregion */
+
+
+/* #region getAllEmployee */
+exports.getAllEmployee = (request, response) => {
+  const requestUrl = url.parse(request.url)
+  const params = querystring.decode(requestUrl.query)
+  const header = {
+    org: request.headers['org']
+  }
+
+  let responseBody = {}
+  const valid = ajv.validate(schema.getAllEmployee, params)
+  const validatonError = ajv.errors
+  if (valid) {
+    mongod.getAllEmployee(header)
+      .then((result) => {
+        responseBody = {
+          status: 'ok',
+          result: result
+        }
+        ok(response, responseBody)
+      })
+      .catch((err) => {
+        responseBody = {
+          status: 'error',
+          message: err.message
+        }
+        error(response, responseBody)
+      })
+  } else {
+    responseBody = {
+      status: 'error',
+      message: validatonError
+    }
+    error(response, responseBody)
+  }
 }
 /* #endregion */
